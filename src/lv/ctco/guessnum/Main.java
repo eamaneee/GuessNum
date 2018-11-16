@@ -9,6 +9,7 @@ public class Main {
 
 
     public static void main(String[] args) {
+        String endGame;
         do {
             System.out.println("What is your name?");
             String name = scan.next();
@@ -36,10 +37,23 @@ public class Main {
                 }
             }
             System.out.println("Would you like to play one more time? Input y.");
-        } while ("y".equals(scan.next()));
+            do{
+            endGame = scan.next();
+            if(! (endGame.equals("y") || endGame.equals("n") )){
+                System.out.println("Please input y or n");
+            }
+            } while (!(endGame.equals("y") || endGame.equals("n")));
+        } while ("y".equals(endGame));
+
+         displayResults(results);
+    }
+
+
+    private static void displayResults(List<GameResult> results){
+
         for (GameResult r: results) {
-            System.out.print(r.name);
-            System.out.print(r.triesCount);
+            System.out.print(r.name + ' ');
+            System.out.print(r.triesCount+ ' ');
             System.out.println(r.duration);
         }
     }

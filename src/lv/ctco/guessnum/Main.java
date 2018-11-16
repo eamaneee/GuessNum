@@ -1,14 +1,19 @@
 package lv.ctco.guessnum;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class Main {
     static Scanner scan = new Scanner(System.in);
     static Random rand = new Random();
     static List <GameResult> results = new ArrayList<>();
+    public static final File RESULTS_FILE = new File("results.txt");
 
 
     public static void main(String[] args) {
+        loadResults();
         String endGame;
         do {
             System.out.println("What is your name?");
@@ -45,18 +50,37 @@ public class Main {
             } while (!(endGame.equals("y") || endGame.equals("n")));
         } while ("y".equals(endGame));
 
-         displayResults(results);
+        // displayResults(results);
+        displayResults();
+        saveResults();
     }
 
 
-    private static void displayResults(List<GameResult> results){
-
-        for (GameResult r: results) {
-            System.out.print(r.name + ' ');
-            System.out.print(r.triesCount+ ' ');
-            System.out.println(r.duration);
-        }
+    private static void displayResults() {
+//private static void displayResults(List<GameResult> results){
+        results.stream()
+                .sorted(Comparator.<GameResult>comparingInt(r -> r.triesCount)
+                                  .thenComparingLong(r -> r.duration))
+                .limit(3)
+                .forEach(r -> {
+                    System.out.print(r.name + " ");
+                    System.out.print(r.triesCount + " ");
+                    System.out.println(r.duration);
+                });
     }
+       // variant 1
+              // for (GameResult r: results) {
+         //   System.out.print(r.name + " ");
+           // System.out.print(r.triesCount + " ");
+           // System.out.println(r.duration);
+        //}
+        // variant 2
+    // for (GameResult r : results) {
+        // System.out.printf("%s %d %.2t sec\n",
+        // r.name,
+        // r.triesCount,
+        // duration / 1000,0);}
+
 
 
     private static int readUserNum() {
@@ -74,6 +98,48 @@ public class Main {
             }
         }
     }
+
+
+    private static void saveResults() {
+        try (PrintWriter fileOut = new PrintWriter(RESULTS_FILE)) {
+
+            int skipCount = results.size() - 5;
+
+            for (GameResult r : results) {
+                if (skipCount <=0) {
+                    // fileOut.printf("%s %d %d\n", r.name, r.triesCount, r.duration);
+                    // }
+                    fileOut.print(r.name + " ");
+                    fileOut.print(r.triesCount + " ");
+                    fileOut.println(r.duration);
+                }
+                skipCount--; //uminshaem kazdij raz na edinichku
+
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void loadResults() {
+        try (Scanner in = new Scanner(RESULTS_FILE)) {
+
+            while (in.hasNext()) {
+                GameResult gr = new GameResult();
+                gr.name = in.next();
+                gr.triesCount = in.nextInt();
+                gr.duration = in.nextLong();
+
+                results.add(gr);
+
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
 
 
